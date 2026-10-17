@@ -27,8 +27,11 @@ ONCO_TABLES = [
 ]
 DNARNA_TABLES = ["neo_neoepitopes", "neo_presented_peptides", "neo_tnb_summary"]
 DRAGEN_TABLES = [
-    "cnv_metrics", "coverage_metrics", "hrd_scores", "mapping_metrics",
-    "ploidy_metrics", "roh_hethom_metrics", "sv_metrics", "trimmer_metrics", "vc_metrics",
+    "somatic_cnv_metrics", "somatic_coverage_metrics", "germline_coverage_metrics",
+    "somatic_hrd_scores", "somatic_mapping_metrics", "germline_mapping_metrics",
+    "ploidy_estimation_metrics", "germline_roh_hethom_metrics",
+    "somatic_sv_metrics", "somatic_trimmer_metrics", "germline_trimmer_metrics",
+    "somatic_vc_metrics", "germline_vc_metrics",
 ]
 REPORT_INDICES = ["sash", "tumor_normal", "oncoanalyser", "oncoanalyser_dna_rna"]
 
