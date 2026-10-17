@@ -1,0 +1,8 @@
+name: wgs-aggregate-bcftools
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bcftools>=1.21
+  - htslib        # bgzip, tabix
+  - python>=3.10  # build_manifest.py / project_donors.py (stdlib only)

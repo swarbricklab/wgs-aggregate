@@ -1,0 +1,13 @@
+name: wgs-aggregate-r
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base>=4.2
+  - r-dplyr
+  - r-readr
+  - r-tidyr
+  - r-fs
+  - r-argparser
+  - r-stringr
+  - r-purrr
