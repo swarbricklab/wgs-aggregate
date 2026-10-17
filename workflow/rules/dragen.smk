@@ -30,7 +30,7 @@ for _script, _tables in _DG.items():
     rule:
         name:   "dragen_" + _script.replace("agg_", "").replace(".R", "")
         input:  runs = SS["dragen_runs"], sash_ss = SS["sash"]
-        output: [f"{_DG_OUT}/{t}.csv" for t in _tables]
+        output: [_DG_OUT + "/" + t + ".csv" for t in _tables]
         params: cmd = _dg_env() + " Rscript " + _DG_DIR + "/" + _script
         conda:  "../envs/r-aggregate.yaml"
         shell:  "{params.cmd}"
