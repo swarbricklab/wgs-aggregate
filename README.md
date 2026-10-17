@@ -22,12 +22,23 @@ each dataset repo. Consolidating them into one versioned Snakemake workflow:
 
 ## Usage
 
-Add as a submodule and run against the dataset's config:
+Add as a submodule; the dataset supplies `config/wgs-aggregate.yaml`. The module
+provides `run_mod.sh` as the entry point (resolves its own Snakefile, sets up the
+toolchain), so a dataset's dvc stage is just:
 
 ```bash
-snakemake --use-conda --configfile config/config.yaml -j<N>
-# or a subset:
-snakemake --use-conda sash oncoanalyser -j<N>
+bash modules/wgs-aggregate/run_mod.sh sash           # one step
+THREADS=16 bash modules/wgs-aggregate/run_mod.sh germline
+bash modules/wgs-aggregate/run_mod.sh reports/wgs/sash.csv   # explicit target(s)
+```
+
+`run_mod.sh` defaults to the NCI toolchain (`meta` conda env + bcftools module,
+snakemake by full path — works offline on compute nodes); override `WGS_CONFIG=`,
+`WGS_CONDA_ENV=`, `SNAKEMAKE=`, `THREADS=` per cluster. Or drive snakemake directly
+with the per-rule conda envs:
+
+```bash
+snakemake --use-conda --configfile config/wgs-aggregate.yaml -j<N> sash
 ```
 
 ## The contract (`config/config.yaml`)
