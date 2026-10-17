@@ -50,17 +50,17 @@ rule all:
 
 # Per-step phony aliases (clean targets for callers, e.g. `snakemake sash`).
 rule sash:
-    input: [f"{OUT}/sash_aggregate/{x}.csv" for x in SASH_TABLES]
+    input: expand(OUT + "/sash_aggregate/{t}.csv", t=SASH_TABLES)
 rule oncoanalyser:
-    input: [f"{OUT}/oncoanalyser_aggregate/{x}.csv" for x in ONCO_TABLES]
+    input: expand(OUT + "/oncoanalyser_aggregate/{t}.csv", t=ONCO_TABLES)
 rule oncoanalyser_dna_rna:
-    input: [f"{OUT}/oncoanalyser_dna_rna_aggregate/{x}.csv" for x in DNARNA_TABLES]
+    input: expand(OUT + "/oncoanalyser_dna_rna_aggregate/{t}.csv", t=DNARNA_TABLES)
 rule dragen:
-    input: [f"{OUT}/dragen_aggregate/{x}.csv" for x in DRAGEN_TABLES]
+    input: expand(OUT + "/dragen_aggregate/{t}.csv", t=DRAGEN_TABLES)
 rule report_index:
-    input: ["reports/wgs/" + x + ".csv" for x in ["sash", "tumor-normal", "oncoanalyser", "oncoanalyser_dna_rna"]]
+    input: expand("reports/wgs/{t}.csv", t=["sash", "tumor-normal", "oncoanalyser", "oncoanalyser_dna_rna"])
 rule germline:
-    input: f"{OUT}/germline_cohort_vcf/cohort.germline.common_snps.vcf.gz"
+    input: OUT + "/germline_cohort_vcf/cohort.germline.common_snps.vcf.gz"
 
 include: "rules/sash.smk"
 include: "rules/oncoanalyser.smk"
