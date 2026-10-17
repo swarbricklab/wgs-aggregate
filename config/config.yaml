@@ -1,8 +1,8 @@
-# wgs-aggregate — interface contract.
+# wgs-aggregate -- interface contract.
 #
 # A dataset points these keys at its materialised per-sample WGS pipeline outputs
 # and its consolidated samplesheets; the workflow emits cohort-level tables. There
-# is NO registry coupling (no index.csv, no config/projects/*) — all sample
+# is NO registry coupling (no index.csv, no config/projects/*) -- all sample
 # identity comes from the consolidated samplesheets, so the workflow plugs into any
 # dataset (the atlas, the registry, a future cohort) unchanged.
 
@@ -11,7 +11,7 @@ data_dir: data/wgs
 # Root for cohort tables: <out_dir>/<step>_aggregate/...  (and germline_cohort_vcf/)
 out_dir: data/wgs
 
-# Consolidated samplesheets — one row per tumour/run, carrying identity columns
+# Consolidated samplesheets -- one row per tumour/run, carrying identity columns
 # + the per-row output-dir key. Schema: docs/samplesheet_contract.md.
 samplesheets:
   sash:                 config/sash/samplesheet.csv
@@ -19,7 +19,7 @@ samplesheets:
   oncoanalyser_dna_rna: config/oncoanalyser_dna_rna/samplesheet.csv
   dragen_runs:          config/tumor-normal/dragen_runs.csv
 
-# Cohort samplesheet (donor_id, assay, usage) — defines the germline cohort set.
+# Cohort samplesheet (donor_id, assay, usage) -- defines the germline cohort set.
 # Replaces the old config/projects/wgs.csv + index.csv in germline_cohort_vcf.
 cohort_samplesheet: config/samplesheet.csv
 germline_usage_include: [analysed, warn_qc]

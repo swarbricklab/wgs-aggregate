@@ -11,3 +11,5 @@ dependencies:
   - r-argparser
   - r-stringr
   - r-purrr
+  - bcftools>=1.21   # agg_smlv_somatic.R shells out to bcftools
+  - htslib

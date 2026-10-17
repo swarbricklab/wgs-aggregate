@@ -11,6 +11,9 @@ OUT  = config["out_dir"]
 SS   = config["samplesheets"]
 STEPS = set(config.get("steps", []))
 
+SCRIPTS = os.path.join(workflow.basedir, "scripts")   # workflow/scripts
+UTILS   = os.path.join(SCRIPTS, "utils.R")            # consolidated utils.R (via WGS_UTILS)
+
 # per-step output table lists (see each rules/*.smk for the rules themselves)
 SASH_TABLES = [
     "purple_drivers_somatic", "purple_drivers_germline", "purple_cnv_gene",
