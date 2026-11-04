@@ -26,8 +26,10 @@ if [[ "$(hostname)" == *"nci"* && -f "$HERE/profiles/global/nci/config.yaml" ]];
     mkdir -p logs/joblogs
 fi
 
-snakemake $global_profile \
+# Targets ("$@") come FIRST: --configfile/--profile take nargs="+", so a target
+# placed after them would be swallowed as an extra config/profile value. As leading
+# positionals they bind correctly (e.g. `./run.sh sash`, `./run.sh germline -j16`).
+snakemake "$@" $global_profile \
     --workflow-profile "$HERE/profiles/workflow" \
     --snakefile "$HERE/workflow/Snakefile" \
-    --configfile "${WGS_AGGREGATE_CONFIG:-$HERE/config/config.yaml}" \
-    "$@"
+    --configfile "${WGS_AGGREGATE_CONFIG:-$HERE/config/config.yaml}"
