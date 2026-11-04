@@ -1,0 +1,2 @@
+chromosome	chromosomeBand	gene	transcript	isCanonical	driver	category	likelihoodMethod	driverLikelihood	missense	nonsense	splice	inframe	frameshift	biallelic	minCopyNumber	maxCopyNumber
+chr17	q21.31	BRCA1	ENST00000357654	true	MUTATION	TSG	DNDS	0.95	1	0	0	0	0	true	1.20	2.30

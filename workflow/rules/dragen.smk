@@ -1,20 +1,12 @@
-# DRAGEN metrics aggregation — one rule per agg script (each emits 1-2 tables).
+# DRAGEN metrics aggregation -- one rule per agg script (each emits 1-2 tables).
 # Decoupled from index.csv: load_run_metadata() (in utils.R) joins dragen_runs.csv
-# with the sash samplesheet for tissue_id and DROPS the registry-only wgs_sbj/wgs_prj.
+# with the sash samplesheet for tissue_id. Dispatched via the shared r_cmd() helper
+# (no `kind`; dragen reads WGS_DRAGEN_* + WGS_OUT_DIR, which r_cmd supplies).
 
-_DG_OUT = OUT + "/dragen_aggregate"
-_DG_DIR = SCRIPTS + "/dragen"
-
-def _dg_env():
-    return (
-        'WGS_UTILS="' + UTILS + '" WGS_OUT_DIR="' + _DG_OUT + '" '
-        'WGS_DRAGEN_RUNS="' + SS["dragen_runs"] + '" '
-        'WGS_SASH_SAMPLESHEET="' + SS["sash"] + '" '
-        'WGS_DRAGEN_DIR="' + DATA + '/tumor-normal"'
-    )
+DRAGEN_OUT = OUT + "/dragen_aggregate"
 
 # agg script -> output table(s)
-_DG = {
+DRAGEN_SCRIPT = {
     "agg_cnv_metrics.R":        ["somatic_cnv_metrics"],
     "agg_coverage_metrics.R":   ["somatic_coverage_metrics", "germline_coverage_metrics"],
     "agg_hrd_scores.R":         ["somatic_hrd_scores"],
@@ -26,11 +18,11 @@ _DG = {
     "agg_vc_metrics.R":         ["somatic_vc_metrics", "germline_vc_metrics"],
 }
 
-for _script, _tables in _DG.items():
+for _script, _tables in DRAGEN_SCRIPT.items():
     rule:
         name:   "dragen_" + _script.replace("agg_", "").replace(".R", "")
         input:  runs = SS["dragen_runs"], sash_ss = SS["sash"]
-        output: [_DG_OUT + "/" + t + ".csv" for t in _tables]
-        params: cmd = _dg_env() + " Rscript " + _DG_DIR + "/" + _script
-        conda:  "../envs/r-aggregate.yaml"
+        output: [DRAGEN_OUT + "/" + t + ".csv" for t in _tables]
+        params: cmd = r_cmd("dragen/" + _script, out_dir=DRAGEN_OUT)
+        conda:  ENV_R
         shell:  "{params.cmd}"

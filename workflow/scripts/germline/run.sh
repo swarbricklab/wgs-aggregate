@@ -25,8 +25,10 @@ cd "$REPO"
 SCRIPT_DIR="${GERMLINE_SCRIPT_DIR:-$REPO/modules/germline_cohort_vcf/scripts}"
 OUT="$REPO/data/wgs/germline_cohort_vcf"
 COHORT="$OUT/cohort.germline.common_snps.vcf.gz"
-AUTOSOMES="$(printf 'chr%d,' {1..22} | sed 's/,$//')"
-MAF_MIN="0.05"
+# Panel knobs: honour config (params.germline.*), falling back to the historical
+# defaults (chr1..22, MAF >= 0.05) so an unset env reproduces the prior output.
+AUTOSOMES="$(printf "chr%d," $(seq 1 "${WGS_AUTOSOMES:-22}") | sed 's/,$//')"
+MAF_MIN="${WGS_MAF_MIN:-0.05}"
 THREADS="${THREADS:-$(nproc)}"
 
 # bcftools does all the VCF work; pull it from the environment modules if the

@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: >-
+  wgs-aggregate configuration. Validated at workflow start via
+  snakemake.utils.validate() in the Snakefile. Three namespaces: deps (inputs),
+  outs (outputs), params (knobs) -- mirroring bulk-rna-preprocessing.
+type: object
+properties:
+  deps:
+    type: object
+    properties:
+      data_dir:
+        type: string
+        description: Root of per-sample pipeline outputs (<data_dir>/<pipeline>/...).
+      samplesheets:
+        type: object
+        description: Consolidated samplesheet per pipeline (identity + per-row dir key).
+        properties:
+          sash:                 {type: string}
+          oncoanalyser:         {type: string}
+          oncoanalyser_dna_rna: {type: string}
+          dragen_runs:          {type: string}
+        required: [sash, oncoanalyser, oncoanalyser_dna_rna, dragen_runs]
+        additionalProperties: false
+      cohort_samplesheet:
+        type: string
+        description: Cohort samplesheet (donor_id, assay, usage) -- the germline cohort set.
+    required: [data_dir, samplesheets, cohort_samplesheet]
+    additionalProperties: false
+  outs:
+    type: object
+    properties:
+      out_dir:
+        type: string
+        description: Root for cohort tables (<out_dir>/<step>_aggregate/... + germline_cohort_vcf/).
+      reports_dir:
+        type: string
+        description: >-
+          Report-index output root. The report_index R scripts hardcode this
+          location, so it should stay reports/wgs unless those scripts change.
+    required: [out_dir, reports_dir]
+    additionalProperties: false
+  params:
+    type: object
+    properties:
+      steps:
+        type: array
+        items:
+          enum: [sash, oncoanalyser, oncoanalyser_dna_rna, dragen, report_index, germline]
+        description: Which aggregation steps to build.
+      germline:
+        type: object
+        properties:
+          usage_include:
+            type: array
+            items: {type: string}
+            description: usage verdicts admitted to the germline cohort.
+          maf_min: {type: number, description: cohort minor-allele-frequency threshold.}
+          autosomes: {type: integer, description: chr1..chrN included in the panel.}
+        required: [usage_include, maf_min, autosomes]
+        additionalProperties: false
+    required: [steps, germline]
+    additionalProperties: false
+required: [deps, outs, params]
+additionalProperties: false

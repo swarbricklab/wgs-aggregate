@@ -1,17 +1,8 @@
-# oncoanalyser (DNA-only) aggregation — per-table rules over
-# config/oncoanalyser/samplesheet.csv. onco_run_id -> per-sample dir resolved in utils.R.
+# oncoanalyser (DNA-only) aggregation -- per-table rules over the oncoanalyser
+# samplesheet. onco_run_id -> per-sample dir is resolved in utils.R. One agg_*.R
+# per table, dispatched via the shared r_cmd() helper (kind="oncoanalyser").
 
-_ONCO_SS  = SS["oncoanalyser"]
-_ONCO_OUT = OUT + "/oncoanalyser_aggregate"
-_ONCO_DIR = SCRIPTS + "/oncoanalyser"
-
-def _onco_env():
-    return (
-        'WGS_KIND=oncoanalyser WGS_UTILS="' + UTILS + '" WGS_SAMPLESHEET="' + _ONCO_SS + '" '
-        'WGS_PIPELINE_DIR="' + DATA + '/oncoanalyser" WGS_OUT_DIR="' + _ONCO_OUT + '"'
-    )
-
-_ONCO_SCRIPT = {
+ONCO_SCRIPT = {
     "cuppa_predictions": "agg_cuppa.R",
     "lilac_alleles":     "agg_lilac.R",
     "chord_hrd":         "agg_chord.R",
@@ -23,9 +14,9 @@ _ONCO_SCRIPT = {
 }
 
 rule oncoanalyser_table:
-    input:  ss = _ONCO_SS
-    output: _ONCO_OUT + "/{table}.csv"
-    params: cmd = lambda wc: _onco_env() + " Rscript " + _ONCO_DIR + "/" + _ONCO_SCRIPT[wc.table]
-    conda:  "../envs/r-aggregate.yaml"
-    wildcard_constraints: table = "|".join(_ONCO_SCRIPT)
+    input:  ss = SS["oncoanalyser"]
+    output: AGG("oncoanalyser", "{table}")
+    params: cmd = lambda wc: r_cmd("oncoanalyser/" + ONCO_SCRIPT[wc.table], kind="oncoanalyser")
+    conda:  ENV_R
+    wildcard_constraints: table = "|".join(ONCO_SCRIPT)
     shell:  "{params.cmd}"
