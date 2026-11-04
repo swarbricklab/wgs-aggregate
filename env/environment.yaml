@@ -1,0 +1,22 @@
+name: wgs-aggregate
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # R aggregation stack (the agg_*.R + report_index/*.R scripts)
+  - r-base>=4.2
+  - r-dplyr
+  - r-readr
+  - r-tidyr
+  - r-fs
+  - r-argparser
+  - r-stringr
+  - r-purrr
+  # VCF toolchain: agg_smlv_somatic.R shells out to bcftools; the germline step is
+  # a bcftools pipeline. bgzip/tabix come from htslib.
+  - bcftools>=1.21
+  - htslib
+  # germline build_manifest.py / project_donors.py (stdlib only)
+  - python>=3.10
+  # so the step can also be driven directly (not only from an outer launcher)
+  - snakemake-minimal>=7.32,<8

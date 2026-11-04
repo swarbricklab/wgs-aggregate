@@ -1,0 +1,19 @@
+# Minimal config for data-independent CI (schema validation + dry-run).
+# Paths are placeholders; no real data is read during validate / -n.
+deps:
+  data_dir: .tests/ci/data
+  samplesheets:
+    sash:                 .tests/ci/sash.samplesheet.csv
+    oncoanalyser:         .tests/ci/oncoanalyser.samplesheet.csv
+    oncoanalyser_dna_rna: .tests/ci/oncoanalyser_dna_rna.samplesheet.csv
+    dragen_runs:          .tests/ci/dragen_runs.csv
+  cohort_samplesheet:     .tests/ci/cohort.samplesheet.csv
+outs:
+  out_dir:     .tests/ci/out
+  reports_dir: reports/wgs
+params:
+  steps: [sash, oncoanalyser, oncoanalyser_dna_rna, dragen, report_index, germline]
+  germline:
+    usage_include: [analysed, warn_qc]
+    maf_min: 0.05
+    autosomes: 22

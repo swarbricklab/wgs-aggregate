@@ -1,39 +1,50 @@
-# wgs-aggregate -- interface contract.
+# wgs-aggregate -- interface contract (deps / outs / params).
 #
 # A dataset points these keys at its materialised per-sample WGS pipeline outputs
 # and its consolidated samplesheets; the workflow emits cohort-level tables. There
 # is NO registry coupling (no index.csv, no config/projects/*) -- all sample
 # identity comes from the consolidated samplesheets, so the workflow plugs into any
 # dataset (the atlas, the registry, a future cohort) unchanged.
+#
+# Validated at workflow start against workflow/schemas/config.schema.yaml.
 
-# Root holding per-sample pipeline outputs: <data_dir>/<pipeline>/...
-data_dir: data/wgs
-# Root for cohort tables: <out_dir>/<step>_aggregate/...  (and germline_cohort_vcf/)
-out_dir: data/wgs
+# --- inputs -------------------------------------------------------------------
+deps:
+  # Root holding per-sample pipeline outputs: <data_dir>/<pipeline>/...
+  data_dir: data/wgs
 
-# Consolidated samplesheets -- one row per tumour/run, carrying identity columns
-# + the per-row output-dir key. Schema: docs/samplesheet_contract.md.
-samplesheets:
-  sash:                 config/sash/samplesheet.csv
-  oncoanalyser:         config/oncoanalyser/samplesheet.csv
-  oncoanalyser_dna_rna: config/oncoanalyser_dna_rna/samplesheet.csv
-  dragen_runs:          config/tumor-normal/dragen_runs.csv
+  # Consolidated samplesheets -- one row per tumour/run, carrying identity columns
+  # + the per-row output-dir key. Schema: docs/samplesheet_contract.md.
+  samplesheets:
+    sash:                 config/sash/samplesheet.csv
+    oncoanalyser:         config/oncoanalyser/samplesheet.csv
+    oncoanalyser_dna_rna: config/oncoanalyser_dna_rna/samplesheet.csv
+    dragen_runs:          config/tumor-normal/dragen_runs.csv
 
-# Cohort samplesheet (donor_id, assay, usage) -- defines the germline cohort set.
-# Replaces the old config/projects/wgs.csv + index.csv in germline_cohort_vcf.
-cohort_samplesheet: config/samplesheet.csv
-germline_usage_include: [analysed, warn_qc]
+  # Cohort samplesheet (donor_id, assay, usage) -- defines the germline cohort set.
+  cohort_samplesheet: config/samplesheet.csv
 
-# Aggregation steps to run.
-steps:
-  - sash
-  - oncoanalyser
-  - oncoanalyser_dna_rna
-  - dragen
-  - report_index
-  - germline
+# --- outputs ------------------------------------------------------------------
+outs:
+  # Root for cohort tables: <out_dir>/<step>_aggregate/...  (and germline_cohort_vcf/)
+  out_dir: data/wgs
+  # Report-index output root. NOTE: the report_index R scripts currently write to
+  # this path hardcoded, so keep it at reports/wgs unless those scripts are updated.
+  reports_dir: reports/wgs
 
-# germline cohort VCF panel params (see workflow/rules/germline.smk)
-germline:
-  maf_min: 0.05
-  autosomes: 22
+# --- knobs --------------------------------------------------------------------
+params:
+  # Aggregation steps to run.
+  steps:
+    - sash
+    - oncoanalyser
+    - oncoanalyser_dna_rna
+    - dragen
+    - report_index
+    - germline
+
+  # germline cohort VCF panel params (see workflow/rules/germline.smk).
+  germline:
+    usage_include: [analysed, warn_qc]   # usage verdicts admitted to the cohort
+    maf_min: 0.05                        # cohort minor-allele-frequency threshold
+    autosomes: 22                        # chr1..chrN included in the panel

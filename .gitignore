@@ -1,3 +1,10 @@
 .snakemake/
 *.pyc
 __pycache__/
+
+# test / CI build artifacts (fixtures + golden ARE committed; outputs are not)
+test/out/
+.tests/ci/out/
+.tests/ci/data/
+.tests/ci/*.csv
+logs/

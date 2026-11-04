@@ -1,0 +1,38 @@
+# The Zenodo concept DOI is added under `identifiers:` once the first GitHub
+# release mints it. Version and date-released are finalised at release time.
+cff-version: 1.2.0
+message: "If you use this workflow, please cite it using the metadata below."
+version: "0.1.0"
+date-released: "2026-11-04"
+title: "wgs-aggregate: cohort aggregation of per-sample WGS pipeline outputs"
+abstract: >-
+  A standalone Snakemake workflow that aggregates per-sample WGS pipeline outputs
+  (sash, oncoanalyser, oncoanalyser DNA+RNA, DRAGEN) into cohort-level tables,
+  builds per-pipeline report indices, and assembles the cohort germline genotype
+  VCF. It is dataset-agnostic (the atlas, the consortium registry, or a future
+  cohort) via a small deps/outs/params config contract, with no registry coupling:
+  all sample identity comes from the dataset's consolidated samplesheets. It
+  follows the lab "a stage is a product" pattern, runs standalone or as a git
+  submodule within a DVC-tracked dataset, and is a faithful, behaviour-preserving
+  extraction validated byte-identical to the prior per-module outputs.
+type: software
+authors:
+  - given-names: John
+    family-names: Reeves
+    affiliation: "Garvan Institute of Medical Research"
+    email: "j.reeves@garvan.org.au"
+  - given-names: Alexander
+    family-names: Swarbrick
+    affiliation: "Garvan Institute of Medical Research"
+    orcid: "https://orcid.org/0000-0002-3051-5676"
+repository-code: "https://github.com/swarbricklab/wgs-aggregate"
+url: "https://github.com/swarbricklab/wgs-aggregate"
+license: MIT
+keywords:
+  - WGS
+  - cohort-aggregation
+  - sash
+  - oncoanalyser
+  - DRAGEN
+  - germline
+  - Snakemake

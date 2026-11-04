@@ -1,66 +1,47 @@
-# wgs-aggregate — cohort aggregation of per-sample WGS pipeline outputs.
-# Dataset-agnostic: all paths + sample identity come from config/config.yaml
-# (see README.md). Run:  snakemake --use-conda --configfile config/config.yaml -jN
+# wgs-aggregate -- cohort aggregation of per-sample WGS pipeline outputs.
+# Dataset-agnostic: all paths + sample identity come from the config (deps/outs/
+# params; see README.md + docs/samplesheet_contract.md). Config is supplied via
+# --configfile (run.sh passes it); there is no hardcoded configfile here.
+#
+#   snakemake --use-conda --configfile config/config.yaml -jN            # all steps
+#   snakemake --use-conda --configfile config/config.yaml -jN sash       # one step
 
-import os
+from snakemake.utils import min_version, validate
 
-configfile: "config/config.yaml"
+min_version("7.32.0")
 
-DATA = config["data_dir"]
-OUT  = config["out_dir"]
-SS   = config["samplesheets"]
-STEPS = set(config.get("steps", []))
+# Fail fast with a clear message on a missing/misnamed key, rather than deep
+# inside a rule. Schema: workflow/schemas/config.schema.yaml.
+validate(config, "schemas/config.schema.yaml")
 
-SCRIPTS = os.path.join(workflow.basedir, "scripts")   # workflow/scripts
-UTILS   = os.path.join(SCRIPTS, "utils.R")            # consolidated utils.R (via WGS_UTILS)
+deps   = config["deps"]
+outs   = config["outs"]
+params = config["params"]
 
-# per-step output table lists (see each rules/*.smk for the rules themselves)
-SASH_TABLES = [
-    "purple_drivers_somatic", "purple_drivers_germline", "purple_cnv_gene",
-    "purple_cnv_somatic", "mutational_signatures", "cpsr_germline_variants",
-    "smlv_somatic_variants", "cancer_report_qc_summary", "cancer_report_signatures",
-    "sash_cohort_summary",
-]
-ONCO_TABLES = [
-    "cuppa_predictions", "lilac_alleles", "chord_hrd", "virus_annotated",
-    "linx_fusions", "linx_drivers", "linx_neoepitopes", "immune_escape",
-]
-DNARNA_TABLES = ["neo_neoepitopes", "neo_presented_peptides", "neo_tnb_summary"]
-DRAGEN_TABLES = [
-    "somatic_cnv_metrics", "somatic_coverage_metrics", "germline_coverage_metrics",
-    "somatic_hrd_scores", "somatic_mapping_metrics", "germline_mapping_metrics",
-    "ploidy_estimation_metrics", "germline_roh_hethom_metrics",
-    "somatic_sv_metrics", "somatic_trimmer_metrics", "germline_trimmer_metrics",
-    "somatic_vc_metrics", "germline_vc_metrics",
-]
-REPORT_INDICES = ["sash", "tumor_normal", "oncoanalyser", "oncoanalyser_dna_rna"]
+# Shared paths, the single r_cmd() dispatch helper, the per-step table lists, and
+# targets(). Defined once here; used by every rules/<step>.smk below.
+include: "rules/common.smk"
 
-def targets():
-    t = []
-    if "sash" in STEPS:                 t += [f"{OUT}/sash_aggregate/{x}.csv" for x in SASH_TABLES]
-    if "oncoanalyser" in STEPS:         t += [f"{OUT}/oncoanalyser_aggregate/{x}.csv" for x in ONCO_TABLES]
-    if "oncoanalyser_dna_rna" in STEPS: t += [f"{OUT}/oncoanalyser_dna_rna_aggregate/{x}.csv" for x in DNARNA_TABLES]
-    if "dragen" in STEPS:               t += [f"{OUT}/dragen_aggregate/{x}.csv" for x in DRAGEN_TABLES]
-    if "report_index" in STEPS:         t += ["reports/wgs/" + x + ".csv" for x in ["sash", "tumor-normal", "oncoanalyser", "oncoanalyser_dna_rna"]]
-    if "germline" in STEPS:             t += [f"{OUT}/germline_cohort_vcf/cohort.germline.common_snps.vcf.gz"]
-    return t
 
 rule all:
-    input: targets()
+    input:
+        targets(),
+
 
 # Per-step phony aliases (clean targets for callers, e.g. `snakemake sash`).
 rule sash:
-    input: expand(OUT + "/sash_aggregate/{t}.csv", t=SASH_TABLES)
+    input: expand(AGG("sash", "{t}"), t=SASH_TABLES)
 rule oncoanalyser:
-    input: expand(OUT + "/oncoanalyser_aggregate/{t}.csv", t=ONCO_TABLES)
+    input: expand(AGG("oncoanalyser", "{t}"), t=ONCO_TABLES)
 rule oncoanalyser_dna_rna:
-    input: expand(OUT + "/oncoanalyser_dna_rna_aggregate/{t}.csv", t=DNARNA_TABLES)
+    input: expand(AGG("oncoanalyser_dna_rna", "{t}"), t=DNARNA_TABLES)
 rule dragen:
-    input: expand(OUT + "/dragen_aggregate/{t}.csv", t=DRAGEN_TABLES)
+    input: expand(AGG("dragen", "{t}"), t=DRAGEN_TABLES)
 rule report_index:
-    input: expand("reports/wgs/{t}.csv", t=["sash", "tumor-normal", "oncoanalyser", "oncoanalyser_dna_rna"])
+    input: expand(REPORTS + "/{t}.csv", t=REPORT_INDICES)
 rule germline:
-    input: OUT + "/germline_cohort_vcf/cohort.germline.common_snps.vcf.gz"
+    input: GERMLINE_VCF
+
 
 include: "rules/sash.smk"
 include: "rules/oncoanalyser.smk"

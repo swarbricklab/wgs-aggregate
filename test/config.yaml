@@ -1,0 +1,22 @@
+# Config for the self-contained golden test (run_test.sh). Drives the two
+# representative steps over the committed synthetic fixture (test/fixtures/):
+# sash PURPLE somatic drivers + dragen WGS coverage metrics. run_test.sh requests
+# those targets explicitly (not `rule all`), so the other steps' inputs are absent
+# by design. The unused samplesheets just satisfy the schema.
+deps:
+  data_dir: test/fixtures
+  samplesheets:
+    sash:                 test/fixtures/sash.samplesheet.csv
+    oncoanalyser:         test/fixtures/sash.samplesheet.csv       # unused here
+    oncoanalyser_dna_rna: test/fixtures/sash.samplesheet.csv       # unused here
+    dragen_runs:          test/fixtures/dragen_runs.csv
+  cohort_samplesheet:     test/fixtures/sash.samplesheet.csv       # unused here
+outs:
+  out_dir:     test/out
+  reports_dir: test/out/reports
+params:
+  steps: [sash, dragen]
+  germline:
+    usage_include: [analysed, warn_qc]
+    maf_min: 0.05
+    autosomes: 22
