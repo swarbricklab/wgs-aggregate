@@ -11,7 +11,6 @@ SASH_SCRIPT = {
     "purple_cnv_somatic":      "agg_purple_cnv_somatic.R",
     "mutational_signatures":   "agg_mutational_signatures.R",
     "cpsr_germline_variants":  "agg_cpsr_germline.R",
-    "sash_cohort_summary":     "cohort_summary.R",
 }
 
 rule sash_table:
@@ -37,5 +36,16 @@ rule sash_cancer_report:
     output: qc  = AGG("sash", "cancer_report_qc_summary"),
             sig = AGG("sash", "cancer_report_signatures")
     params: cmd = r_cmd("sash/agg_cancer_report.R", kind="sash")
+    conda:  ENV_R
+    shell:  "{params.cmd}"
+
+rule sash_cohort_summary:
+    """Per-tumour cohort summary. Reads the mutational_signatures table (top-3 SBS
+    column) from WGS_OUT_DIR at runtime, so declare it as an input to order this
+    after sash_table(mutational_signatures) -- otherwise the column is dropped."""
+    input:  ss   = SS["sash"],
+            sigs = AGG("sash", "mutational_signatures")
+    output: AGG("sash", "sash_cohort_summary")
+    params: cmd = r_cmd("sash/cohort_summary.R", kind="sash")
     conda:  ENV_R
     shell:  "{params.cmd}"
