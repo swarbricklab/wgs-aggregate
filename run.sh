@@ -26,10 +26,17 @@ if [[ "$(hostname)" == *"nci"* && -f "$HERE/profiles/global/nci/config.yaml" ]];
     mkdir -p logs/joblogs
 fi
 
-# Targets ("$@") come FIRST: --configfile/--profile take nargs="+", so a target
-# placed after them would be swallowed as an extra config/profile value. As leading
-# positionals they bind correctly (e.g. `./run.sh sash`, `./run.sh germline -j16`).
-snakemake "$@" $global_profile \
+# Arg order matters. `--cores N` first gives a default core count (snakemake 7
+# errors without one off-profile); then "$@" (targets / extra flags) -- placed
+# where the preceding option is bounded, so targets bind as positionals and a
+# user-supplied -j/--cores later wins. --configfile/--profile (nargs="+") go LAST,
+# with nothing after them to swallow. Local run (no PBS); --rerun-triggers mtime
+# matches the dataset's incremental-rebuild expectation.
+snakemake \
+    --cores "${CORES:-${THREADS:-4}}" \
+    "$@" \
+    $global_profile \
+    --rerun-triggers mtime \
     --workflow-profile "$HERE/profiles/workflow" \
     --snakefile "$HERE/workflow/Snakefile" \
     --configfile "${WGS_AGGREGATE_CONFIG:-$HERE/config/config.yaml}"
