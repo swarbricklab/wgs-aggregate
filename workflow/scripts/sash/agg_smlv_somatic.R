@@ -33,7 +33,10 @@
 
 source(Sys.getenv("WGS_UTILS", "workflow/scripts/utils.R"))
 
-EXTRACT_SH <- "modules/sash_aggregate/scripts/extract_smlv_somatic.sh"
+# Co-located with this script (workflow/scripts/sash/); resolve it relative to
+# WGS_UTILS (workflow/scripts/utils.R) rather than a hardcoded inline-module path.
+EXTRACT_SH <- file.path(dirname(Sys.getenv("WGS_UTILS", "workflow/scripts/utils.R")),
+                        "sash", "extract_smlv_somatic.sh")
 OUT_CSV    <- file.path(OUT_DIR, "smlv_somatic_variants.csv")
 
 if (Sys.which("bcftools") == "") {
