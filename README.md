@@ -97,16 +97,25 @@ Samplesheet column contract: [`docs/samplesheet_contract.md`](docs/samplesheet_c
 WGS_AGGREGATE_CONFIG=/path/to/parent/config.yaml ./run.sh sash
 ```
 
-`run.sh` activates the Snakemake launcher env (`snakemake_7.32.4`), uses
-`--use-conda` (per-rule env `env/environment.yaml`) and the workflow profile, and
-on NCI adds the global PBS profile when present (`profiles/global/nci`, a
-submodule). The aggregation reads every per-sample file into memory and the
-germline step merges per-donor VCFs across the whole cohort — run it via the
-cluster scheduler, not a login node.
+`run.sh` has two toolchains:
 
-> **Offline compute nodes.** `--use-conda` must build the per-rule env on first
-> run; build it once on a data-mover node so compute runs are offline-safe. Or
-> drive snakemake directly without conda if the toolchain is already on `PATH`.
+- **Default (NCI / offline).** Runs under the `WGS_AGGREGATE_ENV` conda env
+  (`meta`) with `bcftools` from the environment module and `snakemake` by full
+  path — **no `--use-conda`**, so it works on internet-less compute nodes. This is
+  how the datasets drive it (and the behaviour of the former `run_mod.sh`).
+- **Portable (`WGS_AGGREGATE_USE_CONDA=1`).** `--use-conda` with
+  `env/environment.yaml` + the workflow profile (the `bulk-rna-preprocessing`
+  standalone standard; on NCI also adds the global PBS profile when present at
+  `profiles/global/nci`). Builds the per-rule env on first run, so it needs
+  internet / a prebuilt env.
+
+```bash
+WGS_AGGREGATE_USE_CONDA=1 ./run.sh sash      # portable, managed per-rule env
+```
+
+The aggregation reads every per-sample file into memory and the germline step
+merges per-donor VCFs across the whole cohort — run it via the cluster scheduler,
+not a login node.
 
 ## Test
 
